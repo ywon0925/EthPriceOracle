@@ -12,11 +12,11 @@ contract EthPriceOracle is Ownable {
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
   
   function getLatestEthPrice() public returns (uint256) {
-    randNonce++;
-    uint id = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % modulus;
-    pendingRequests[id] = true;
-    emit GetLatestEthPriceEvent(msg.sender, id);
-    return id;
+      randNonce++;
+      uint id = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % modulus;
+      pendingRequests[id] = true;
+      emit GetLatestEthPriceEvent(msg.sender, id);
+      return id;
   }
 
   function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyOwner{
@@ -25,6 +25,6 @@ contract EthPriceOracle is Ownable {
       CallerContractInterface callerContractInstance;
       callerContractInstance = CallerContractInterface(_callerAddress);
       callerContractInstance.callback(_ethPrice, _id);
-
+      emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
   }
 }
