@@ -1,2 +1,3 @@
 # EthPriceOracle
-# EthPriceOracle
+
+Studying how Oracle works
