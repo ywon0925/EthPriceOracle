@@ -18,13 +18,11 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 const LoomTruffleProvider = require('loom-truffle-provider')
-
 const path = require('path')
 const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const mnemonic = fs.readFileSync("../.secret").toString().trim();
 
 module.exports = {
   /**
@@ -83,7 +81,13 @@ module.exports = {
         return new LoomTruffleProvider(chainId, writeUrl, readUrl, privateKey)
       },
       network_id: '9545242630824'
-    }
+    },
+    rinkeby: {
+      provider: function() { 
+       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/6800fd45859d4a8792b568ea4408c73a");
+      },
+      network_id: 4,
+    },
   },
 
   // Set default mocha options here, use special reporters etc.

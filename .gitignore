@@ -1,2 +1,5 @@
 node_modules
 *private_key
+.secret
+.env
+Config

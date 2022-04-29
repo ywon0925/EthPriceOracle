@@ -17,14 +17,15 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 const LoomTruffleProvider = require('loom-truffle-provider')
 const path = require('path')
 const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+// dotenv not working, process.env variables are undefined 
 
+const mnemonic = fs.readFileSync("../Config/.mnemonic").toString().trim();
+const projectId = fs.readFileSync("../Config/.projectId").toString().trim();
+//const mnemonic = "next reward pudding luggage link odor neglect burst timber post huge net"
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -82,7 +83,13 @@ module.exports = {
         return new LoomTruffleProvider(chainId, writeUrl, readUrl, privateKey)
       },
       network_id: '9545242630824'
-    }
+    },
+    rinkeby: {
+      provider: function() { 
+       return new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${projectId}`);
+      },
+      network_id: 4,
+    },
   },
 
   // Set default mocha options here, use special reporters etc.

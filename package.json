@@ -7,13 +7,19 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy:oracle": "cd oracle && npx truffle migrate --network extdev --reset -all && cd ..",
     "deploy:caller": "cd caller && npx truffle migrate --network extdev --reset -all && cd ..",
-    "deploy:all": "npm run deploy:oracle && npm run deploy:caller"
+    "deploy:all": "npm run deploy:oracle && npm run deploy:caller",
+
+    "deploy:oracle rinkeby": "cd oracle && truffle migrate --network rinkeby --reset -all && cd ..",
+    "deploy:caller rinkeby": "cd caller && truffle migrate --network rinkeby --reset -all && cd ..",
+    "deploy:all rinkeby": "npm run deploy:oracle rinkeby && npm run deploy:calle rinkeby"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
+    "@truffle/hdwallet-provider": "^2.0.7",
+    "dotenv": "^16.0.0",
     "loom-truffle-provider": "^0.15.0"
   }
 }

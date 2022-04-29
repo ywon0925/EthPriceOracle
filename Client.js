@@ -45,6 +45,7 @@ async function init () {
     process.exit( );
   })
   const networkId = await web3js.eth.net.getId()
+  console.log(networkId);
   const oracleAddress =  OracleJSON.networks[networkId].address
   await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress })
   setInterval( async () => {
