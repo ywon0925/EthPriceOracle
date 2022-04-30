@@ -12,7 +12,6 @@ const account = web3.eth.accounts.wallet[0].address
 
 async function getCallerContract () {
   const networkId = await web3.eth.net.getId()
-  console.log(networkId)
   return new web3.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
 
@@ -57,9 +56,8 @@ async function init () {
   const networkId = await web3.eth.net.getId()
   const oracleAddress =  OracleJSON.networks[networkId].address
   await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: account, gas: 1000000 })
-  await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
-
-//  setInterval( async () => {
-  //  await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
-  //}, SLEEP_INTERVAL);
+  //await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
+  while(true){
+      await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
+  }
 })()
