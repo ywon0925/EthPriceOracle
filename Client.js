@@ -1,12 +1,19 @@
-const common = require('./utils/common.js')
-const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 2000
-const PRIVATE_KEY_FILE_NAME = process.env.PRIVATE_KEY_FILE || './caller/caller_private_key'
+//const common = require('./utils/common.js')
+require('dotenv').config()
+const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL
 const CallerJSON = require('./caller/build/contracts/CallerContract.json')
 const OracleJSON = require('./oracle/build/contracts/EthPriceOracle.json')
+const PROJECT_ID = process.env.CALLER_PROJECT_ID
+const Web3 = require('web3')
+const web3 = new Web3(new Web3.providers.WebsocketProvider(`wss://rinkeby.infura.io/ws/v3/${PROJECT_ID}`))
+//const web3 = new Web3(`wss://rinkeby.infura.io/ws/v3/${PROJECT_ID}`)
+web3.eth.accounts.wallet.add(process.env.CALLER_PRIVATE_KEY);
+const account = web3.eth.accounts.wallet[0].address
 
-async function getCallerContract (web3js) {
-  const networkId = await web3js.eth.net.getId()
-  return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
+async function getCallerContract () {
+  const networkId = await web3.eth.net.getId()
+  console.log(networkId)
+  return new web3.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
 
 async function retrieveLatestEthPrice () {
@@ -27,28 +34,26 @@ async function filterEvents (callerContract) {
   })
   callerContract.events.ReceivedNewRequestIdEvent({ filter: { } }, async (err, event) => {
     if (err) console.error('Error on event', err)
+    console.log('New Request Received. ID: ' + event.returnValues.id)
   })
 }
 
 async function init () {
-  const { ownerAddress, web3js, client } = common.loadAccount(PRIVATE_KEY_FILE_NAME)
-  const callerContract = await getCallerContract(web3js)
+  const callerContract = await getCallerContract()
   filterEvents(callerContract)
-  return { callerContract, ownerAddress, client, web3js }
+  return callerContract
 }
 
 (async () => {
-  const { callerContract, ownerAddress, client, web3js } = await init()
+  const callerContract = await init()
   process.on( 'SIGINT', () => {
     console.log('Calling client.disconnect()')
-    client.disconnect();
     process.exit( );
   })
-  const networkId = await web3js.eth.net.getId()
-  console.log(networkId);
+  const networkId = await web3.eth.net.getId()
   const oracleAddress =  OracleJSON.networks[networkId].address
-  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress })
+  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: account, gas: 450000 })
   setInterval( async () => {
-    await callerContract.methods.updateEthPrice().send({ from: ownerAddress })
+    await callerContract.methods.updateEthPrice().send({ from: account, gas: 450000 })
   }, SLEEP_INTERVAL);
 })()

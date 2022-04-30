@@ -10,6 +10,10 @@ const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const OracleJSON = require('./oracle/build/contracts/EthPriceOracle.json')
 var pendingRequests = []
 
+const web3 = new Web3(`wss://rinkeby.infura.io/ws/v3/${PROJECT_ID}`)
+web3.eth.accounts.wallet.add(process.env.OWNER_PRIVATE_KEY);
+const account = web3.eth.accounts.wallet[0].address
+
 // Get Oracle Contract
 async function getOracleContract(web3){
     const networkId = await web3.eth.net.getId()
@@ -35,6 +39,7 @@ async function filterEvents(oracleContract){
             console.error('Error on event', err)
             return
         }
+        console.log('Get Latest Eth Price for Requet ' + event.returnValues.id + ' by ' + event.returnValues[0])
         await addRequestToQueue(event);
     })
     oracleContract.events.SetLatestEthPriceEvent(async (err, event) => {
@@ -42,7 +47,7 @@ async function filterEvents(oracleContract){
             console.error('Error on event', err)
             return
         }
-        // do something
+        console.log('Requested Latest Eth Price: ' + event.returnValues._ethPrice + ' by ' + event.returnValues._callerAddress)
     }) 
 }
 
@@ -87,17 +92,17 @@ async function setLatestEthPrice (oracleContract, callerAddress, ethPrice, id) {
     const multiplier = new BN(10**10, 10)
     const ethPriceInt = (new BN(parseInt(ethPrice), 10)).mul(multiplier)
     const idInt = new BN(parseInt(id))
+    console.log(ethPrice)
     try {
-        await oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString()).send({ from: OWNER_ADDRESS })
+        await oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString()).send({ from: account, gas: 45000 })
     } catch (error) {
-        console.log('Error encountered while calling setLatestEthPrice.')
+        console.error('Error encountered while calling setLatestEthPrice.', error)
         // Do some error handling
     }
 } 
 
 // Initialize web3 instance using Infura
 async function init () {
-    const web3 = new Web3(`wss://rinkeby.infura.io/ws/v3/${PROJECT_ID}`)
     const oracleContract = await getOracleContract(web3)
     filterEvents(oracleContract)
     return oracleContract

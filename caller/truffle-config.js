@@ -22,7 +22,9 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const LoomTruffleProvider = require('loom-truffle-provider')
 const path = require('path')
 const fs = require('fs');
-const mnemonic = fs.readFileSync("../.secret").toString().trim();
+
+const mnemonic = fs.readFileSync("../Config/.mnemonic").toString().trim();
+const projectId = fs.readFileSync("../Config/.callerProjectId").toString().trim();
 
 module.exports = {
   /**
@@ -84,9 +86,10 @@ module.exports = {
     },
     rinkeby: {
       provider: function() { 
-       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/6800fd45859d4a8792b568ea4408c73a");
+       return new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${projectId}`, 1);
       },
       network_id: 4,
+      gas: 450000,
     },
   },
 
