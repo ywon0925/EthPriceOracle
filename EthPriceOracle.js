@@ -39,7 +39,7 @@ async function filterEvents(oracleContract){
             console.error('Error on event', err)
             return
         }
-        console.log('Get Latest Eth Price for Requet ' + event.returnValues.id + ' by ' + event.returnValues[0])
+        console.log('Getting Latest Eth Price for Requet ' + event.returnValues.id + ' requested by ' + event.returnValues[0])
         await addRequestToQueue(event);
     })
     oracleContract.events.SetLatestEthPriceEvent(async (err, event) => {
@@ -47,7 +47,7 @@ async function filterEvents(oracleContract){
             console.error('Error on event', err)
             return
         }
-        console.log('Requested Latest Eth Price: ' + event.returnValues._ethPrice + ' by ' + event.returnValues._callerAddress)
+        console.log('Setting Latest Eth Price: ' + event.returnValues[0] + ' requested by ' + event.returnValues[1])
     }) 
 }
 
@@ -94,7 +94,7 @@ async function setLatestEthPrice (oracleContract, callerAddress, ethPrice, id) {
     const idInt = new BN(parseInt(id))
     console.log(ethPrice)
     try {
-        await oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString()).send({ from: account, gas: 45000 })
+        await oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString()).send({ from: account, gas: 100000 })
     } catch (error) {
         console.error('Error encountered while calling setLatestEthPrice.', error)
         // Do some error handling

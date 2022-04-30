@@ -28,12 +28,16 @@ async function retrieveLatestEthPrice () {
 }
 
 async function filterEvents (callerContract) {
+  callerContract.events.newOracleAddressEvent({ filter: {} }, async (err, event) =>{
+    if (err) console.error('Error on newOracleAddressEvent', err)
+    console.log('* New Oracle Address: ' + event.returnValues.oracleAddress)
+  })
   callerContract.events.PriceUpdatedEvent({ filter: { } }, async (err, event) => {
-    if (err) console.error('Error on event', err)
+    if (err) console.error('Error on PriceUpdatedEvent', err)
     console.log('* New PriceUpdated event. ethPrice: ' + event.returnValues.ethPrice)
   })
   callerContract.events.ReceivedNewRequestIdEvent({ filter: { } }, async (err, event) => {
-    if (err) console.error('Error on event', err)
+    if (err) console.error('Error on ReceivedNewRequestIdEvent', err)
     console.log('New Request Received. ID: ' + event.returnValues.id)
   })
 }
@@ -52,8 +56,10 @@ async function init () {
   })
   const networkId = await web3.eth.net.getId()
   const oracleAddress =  OracleJSON.networks[networkId].address
-  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: account, gas: 450000 })
-  setInterval( async () => {
-    await callerContract.methods.updateEthPrice().send({ from: account, gas: 450000 })
-  }, SLEEP_INTERVAL);
+  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: account, gas: 1000000 })
+  await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
+
+//  setInterval( async () => {
+  //  await callerContract.methods.updateEthPrice().send({ from: account, gas: 1000000 })
+  //}, SLEEP_INTERVAL);
 })()
