@@ -8,7 +8,6 @@
     "deploy:oracle": "cd oracle && npx truffle migrate --network extdev --reset -all && cd ..",
     "deploy:caller": "cd caller && npx truffle migrate --network extdev --reset -all && cd ..",
     "deploy:all": "npm run deploy:oracle && npm run deploy:caller",
-
     "deploy:oracle rinkeby": "cd oracle && truffle migrate --network rinkeby --reset -all && cd ..",
     "deploy:caller rinkeby": "cd caller && truffle migrate --network rinkeby --reset -all && cd ..",
     "deploy:all rinkeby": "npm run deploy:oracle rinkeby && npm run deploy:calle rinkeby"

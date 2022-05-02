@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "./CallerContractInterface.sol";
+import "./ICallerContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Contract that interact w/ Node server
@@ -27,8 +27,8 @@ contract EthPriceOracle is Ownable {
   function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyOwner{
       require(pendingRequests[_id], "This request is not in my pending list.");
       delete pendingRequests[_id];
-      CallerContractInterface callerContractInstance;
-      callerContractInstance = CallerContractInterface(_callerAddress);
+      ICallerContract callerContractInstance;
+      callerContractInstance = ICallerContract(_callerAddress);
       callerContractInstance.callback(_ethPrice, _id);
       emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
   }

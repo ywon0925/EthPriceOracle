@@ -1,13 +1,13 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "./EthPriceOracleInterface.sol";
+import "./IEthPriceOracle.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 /// @title Contract to interact w/ Oracle Contract
 /// @author Yuseok Michael Won
 contract CallerContract {
     uint256 private ethPrice;
-    EthPriceOracleInterface private oracleInstance;
+    IEthPriceOracle private oracleInstance;
     address private oracleAddress;
     mapping(uint256 => bool) myRequests;
 
@@ -17,7 +17,7 @@ contract CallerContract {
 
     function setOracleInstanceAddress(address _oracleInstanceAddress) public {
         oracleAddress = _oracleInstanceAddress;
-        oracleInstance = EthPriceOracleInterface(oracleAddress);
+        oracleInstance = IEthPriceOracle(oracleAddress);
         emit newOracleAddressEvent(oracleAddress);
     }
 
