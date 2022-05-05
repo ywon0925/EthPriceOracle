@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 /// @title Contract that interact w/ Node server
 /// @author Yuseok Michael Won
 contract EthPriceOracle is AccessControl {
-  bytes32 public constant owners = keccak256("owners");
-  bytes32 public constant oracles = keccak256("oracles");
+  bytes32 public constant OWNER_ROLE = keccak256("owners");
+  bytes32 public constant ORACLE_ROLE = keccak256("oracles");
 
   uint private randNonce = 0;
   uint private modulus = 1000;
@@ -19,13 +19,14 @@ contract EthPriceOracle is AccessControl {
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
   
   constructor(address _owner) {
-    grantRole(owners, _owner);
+    _setRoleAdmin(OWNER_ROLE, _owner);
+    //grantRole(owners, _owner);
   }
 
   function addOracle(address _oracle) public{
-    require(hasRole(owners, msg.sender));
-    require(!hasRole(oracles, _oracle));
-    grantRole(oracles, _oracle);
+    require(hasRole(OWNER_ROLE, msg.sender));
+    require(!hasRole(OWNER_ROLE, _oracle));
+    grantRole(OWNER_ROLE, _oracle);
   }
 
   /// @notice add randomly generated request id to pending list & return the id
@@ -38,7 +39,7 @@ contract EthPriceOracle is AccessControl {
   }
 
   /// @notice if request is valid, remove request from pendding list & callback the _ethPrice to caller contract
-  function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyRole(owners) {
+  function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyRole(OWNER_ROLE) {
       require(pendingRequests[_id], "This request is not in my pending list.");
       delete pendingRequests[_id];
       ICallerContract callerContractInstance;
