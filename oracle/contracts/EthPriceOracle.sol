@@ -17,16 +17,21 @@ contract EthPriceOracle is AccessControl {
 
   event GetLatestEthPriceEvent(address callerAddress, uint id);
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
-  
+  event AddOracleEvent(address oralceAddress);
+
   constructor(address _owner) {
-    _setRoleAdmin(OWNER_ROLE, _owner);
+    _setupRole(DEFAULT_ADMIN_ROLE, _owner);
+    _setRoleAdmin(OWNER_ROLE, DEFAULT_ADMIN_ROLE);
+    _setupRole(OWNER_ROLE, _owner);
     //grantRole(owners, _owner);
   }
 
   function addOracle(address _oracle) public{
     require(hasRole(OWNER_ROLE, msg.sender));
     require(!hasRole(OWNER_ROLE, _oracle));
-    grantRole(OWNER_ROLE, _oracle);
+    _grantRole(ORACLE_ROLE, _oracle);
+    emit AddOracleEvent(_oracle);
+    //grantRole(OWNER_ROLE, _oracle);
   }
 
   /// @notice add randomly generated request id to pending list & return the id
