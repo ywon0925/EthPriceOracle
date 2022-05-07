@@ -17,7 +17,7 @@ contract EthPriceOracle is AccessControl {
 
   event GetLatestEthPriceEvent(address callerAddress, uint id);
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
-  event AddOracleEvent(address oralceAddress);
+  //event AddOracleEvent(address oralceAddress);
 
   constructor(address _owner) {
     _setupRole(DEFAULT_ADMIN_ROLE, _owner);
@@ -30,7 +30,8 @@ contract EthPriceOracle is AccessControl {
     require(hasRole(OWNER_ROLE, msg.sender));
     require(!hasRole(OWNER_ROLE, _oracle));
     _grantRole(ORACLE_ROLE, _oracle);
-    emit AddOracleEvent(_oracle);
+    emit RoleGranted(ORACLE_ROLE, _oracle, msg.sender);
+    //emit AddOracleEvent(_oracle);
     //grantRole(OWNER_ROLE, _oracle);
   }
 
