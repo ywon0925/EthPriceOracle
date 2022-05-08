@@ -19,6 +19,7 @@ contract EthPriceOracle is AccessControl {
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
   //event AddOracleEvent(address oralceAddress);
 
+  /// @dev setting up Contract Owner a Default Admin & setting up other Roles
   constructor(address _owner) {
     _setupRole(DEFAULT_ADMIN_ROLE, _owner);
     _setRoleAdmin(OWNER_ROLE, DEFAULT_ADMIN_ROLE);
@@ -26,16 +27,17 @@ contract EthPriceOracle is AccessControl {
     //grantRole(owners, _owner);
   }
 
+  /// @dev caller need OWNER role & _oracle should not already be an Oracle
   function addOracle(address _oracle) public{
-    require(hasRole(OWNER_ROLE, msg.sender));
-    require(!hasRole(OWNER_ROLE, _oracle));
+    require(hasRole(OWNER_ROLE, msg.sender), "Not an OWNER!");
+    require(!hasRole(ORACLE_ROLE, _oracle), "Already Oracle!");
     _grantRole(ORACLE_ROLE, _oracle);
     emit RoleGranted(ORACLE_ROLE, _oracle, msg.sender);
     //emit AddOracleEvent(_oracle);
     //grantRole(OWNER_ROLE, _oracle);
   }
 
-  /// @notice add randomly generated request id to pending list & return the id
+  /// @dev add randomly generated request id to pending list & return the id
   function getLatestEthPrice() public returns (uint256) {
       randNonce++;
       uint id = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % modulus;
@@ -44,7 +46,7 @@ contract EthPriceOracle is AccessControl {
       return id;
   }
 
-  /// @notice if request is valid, remove request from pendding list & callback the _ethPrice to caller contract
+  /// @dev if request is valid, remove request from pendding list & callback the _ethPrice to caller contract
   function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyRole(OWNER_ROLE) {
       require(pendingRequests[_id], "This request is not in my pending list.");
       delete pendingRequests[_id];
