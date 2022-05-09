@@ -13,6 +13,7 @@ contract EthPriceOracle is AccessControl {
 
   uint private randNonce = 0;
   uint private modulus = 1000;
+  uint private numOracles = 0;
   mapping(uint256=>bool) pendingRequests;
 
   event GetLatestEthPriceEvent(address callerAddress, uint id);
@@ -28,15 +29,24 @@ contract EthPriceOracle is AccessControl {
   }
 
   /// @dev caller need OWNER role & _oracle should not already be an Oracle
-  function addOracle(address _oracle) public{
+  function addOracle(address _oracle) public {
     require(hasRole(OWNER_ROLE, msg.sender), "Not an OWNER!");
-    require(!hasRole(ORACLE_ROLE, _oracle), "Already Oracle!");
+    require(!hasRole(ORACLE_ROLE, _oracle), "Already ORACLE!");
     _grantRole(ORACLE_ROLE, _oracle);
     emit RoleGranted(ORACLE_ROLE, _oracle, msg.sender);
     //emit AddOracleEvent(_oracle);
     //grantRole(OWNER_ROLE, _oracle);
   }
 
+  /// @dev at least one oracle should remain, 
+  function removeOralce(address _oracle) public {
+    require(hasRole(OWNER_ROLE, msg.sender), "Not an OWNER!");
+    require(hasRole(ORACLE_ROLE, _oracle), "Not an ORACLE!");
+    require(numOracles > 1, "Do not remove last oracle!");
+    _revokeRole(ORACLE_ROLE, _oracle);
+    numOracles--;
+    emit RoleRevoked(ORACLE_ROLE, _oracle, msg.sender);
+  }
   /// @dev add randomly generated request id to pending list & return the id
   function getLatestEthPrice() public returns (uint256) {
       randNonce++;
