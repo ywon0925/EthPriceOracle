@@ -14,7 +14,15 @@ contract EthPriceOracle is AccessControl {
   uint private randNonce = 0;
   uint private modulus = 1000;
   uint private numOracles = 0;
+
+  struct Response {
+    address oracleAddress;
+    address callerAddress;
+    uint256 ethPrice;
+  }
+
   mapping(uint256=>bool) pendingRequests;
+  mapping (uint256=>Response[]) public requestIdToResponse;
 
   event GetLatestEthPriceEvent(address callerAddress, uint id);
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
@@ -57,8 +65,11 @@ contract EthPriceOracle is AccessControl {
   }
 
   /// @dev if request is valid, remove request from pendding list & callback the _ethPrice to caller contract
-  function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyRole(OWNER_ROLE) {
+  function setLatestEthPrice(uint256 _ethPrice, address _callerAddress, uint256 _id) public onlyRole(ORACLE_ROLE) {
       require(pendingRequests[_id], "This request is not in my pending list.");
+      Response memory resp;
+      resp = Response(msg.sender, _callerAddress, _ethPrice);
+      requestIdToResponse[_id].push(resp);
       delete pendingRequests[_id];
       ICallerContract callerContractInstance;
       callerContractInstance = ICallerContract(_callerAddress);
