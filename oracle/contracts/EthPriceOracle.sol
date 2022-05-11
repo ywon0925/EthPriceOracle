@@ -14,7 +14,7 @@ contract EthPriceOracle is AccessControl {
   uint private randNonce = 0;
   uint private modulus = 1000;
   uint private numOracles = 0;
-
+  uint private THRESHOLD = 0;
   struct Response {
     address oracleAddress;
     address callerAddress;
@@ -26,6 +26,7 @@ contract EthPriceOracle is AccessControl {
 
   event GetLatestEthPriceEvent(address callerAddress, uint id);
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
+  event SetThresholdEvent(uint THRESHOLD);
   //event AddOracleEvent(address oralceAddress);
 
   /// @dev setting up Contract Owner a Default Admin & setting up other Roles
@@ -55,6 +56,12 @@ contract EthPriceOracle is AccessControl {
     numOracles--;
     emit RoleRevoked(ORACLE_ROLE, _oracle, msg.sender);
   }
+
+  function setThreshold(uint _threshold) public onlyRole(ORACLE_ROLE) {
+    THRESHOLD = _threshold;
+    emit SetThresholdEvent(THRESHOLD);
+  }
+
   /// @dev add randomly generated request id to pending list & return the id
   function getLatestEthPrice() public returns (uint256) {
       randNonce++;
@@ -70,10 +77,13 @@ contract EthPriceOracle is AccessControl {
       Response memory resp;
       resp = Response(msg.sender, _callerAddress, _ethPrice);
       requestIdToResponse[_id].push(resp);
-      delete pendingRequests[_id];
-      ICallerContract callerContractInstance;
-      callerContractInstance = ICallerContract(_callerAddress);
-      callerContractInstance.callback(_ethPrice, _id);
-      emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+      uint numResponses = requestIdToResponse[_id].length;
+      if (numResponses >= THRESHOLD){
+        delete pendingRequests[_id];
+        ICallerContract callerContractInstance;
+        callerContractInstance = ICallerContract(_callerAddress);
+        callerContractInstance.callback(_ethPrice, _id);
+        emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+      }
   }
 }
