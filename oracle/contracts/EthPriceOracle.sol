@@ -3,7 +3,6 @@ pragma solidity >=0.8.0;
 
 import "./ICallerContract.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Contract that interact w/ Node server
 /// @author Yuseok Michael Won
@@ -27,14 +26,12 @@ contract EthPriceOracle is AccessControl {
   event GetLatestEthPriceEvent(address callerAddress, uint id);
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
   event SetThresholdEvent(uint THRESHOLD);
-  //event AddOracleEvent(address oralceAddress);
 
   /// @dev setting up Contract Owner a Default Admin & setting up other Roles
   constructor(address _owner) {
     _setupRole(DEFAULT_ADMIN_ROLE, _owner);
     _setRoleAdmin(OWNER_ROLE, DEFAULT_ADMIN_ROLE);
     _setupRole(OWNER_ROLE, _owner);
-    //grantRole(owners, _owner);
   }
 
   /// @dev caller need OWNER role & _oracle should not already be an Oracle
@@ -43,8 +40,6 @@ contract EthPriceOracle is AccessControl {
     require(!hasRole(ORACLE_ROLE, _oracle), "Already ORACLE!");
     _grantRole(ORACLE_ROLE, _oracle);
     emit RoleGranted(ORACLE_ROLE, _oracle, msg.sender);
-    //emit AddOracleEvent(_oracle);
-    //grantRole(OWNER_ROLE, _oracle);
   }
 
   /// @dev at least one oracle should remain, 
