@@ -14,6 +14,7 @@ contract EthPriceOracle is AccessControl {
   uint private modulus = 1000;
   uint private numOracles = 0;
   uint private THRESHOLD = 0;
+
   struct Response {
     address oracleAddress;
     address callerAddress;
@@ -52,6 +53,7 @@ contract EthPriceOracle is AccessControl {
     emit RoleRevoked(ORACLE_ROLE, _oracle, msg.sender);
   }
 
+  /// @dev setting threshold to handle request once reaches the THRESHOLD
   function setThreshold(uint _threshold) public onlyRole(ORACLE_ROLE) {
     THRESHOLD = _threshold;
     emit SetThresholdEvent(THRESHOLD);
